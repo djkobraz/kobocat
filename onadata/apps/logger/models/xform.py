@@ -58,6 +58,7 @@ class XForm(BaseModel):
 
     user = models.ForeignKey(User, related_name='xforms', null=True)
     require_auth = models.BooleanField(default=False)
+    allow_auth_submit = models.BooleanField(default=False)  # Accept form submit from any users
     shared = models.BooleanField(default=False)
     shared_data = models.BooleanField(default=False)
     downloadable = models.BooleanField(default=True)
