@@ -80,7 +80,8 @@ class XFormListApi(viewsets.ReadOnlyModelViewSet):
         profile = get_object_or_404(
             UserProfile, user__username=username.lower())
         # Include only the forms belonging to the specified user
-        queryset = queryset.filter(user=profile.user)
+        from django.db.models import Q
+        queryset = queryset.filter(Q(user=profile.user) | Q(allow_auth_submit=True))
         if profile.require_auth:
             # The specified has user ticked "Require authentication to see
             # forms and submit data"; reject anonymous requests
