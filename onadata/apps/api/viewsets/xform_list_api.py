@@ -67,7 +67,6 @@ class XFormListApi(viewsets.ReadOnlyModelViewSet):
 
     def filter_queryset(self, queryset):
         username = self.kwargs.get('username')
-        pk = self.kwargs.get('pk')
 
         if username is None:
             # If no username is specified, the request must be authenticated
@@ -82,13 +81,7 @@ class XFormListApi(viewsets.ReadOnlyModelViewSet):
         profile = get_object_or_404(
             UserProfile, user__username=username.lower())
 
-        formID = None
-        if 'formID' in self.request.query_params:
-            formID = self.request.query_params['formID']
-
-        if formID is not None:
-            # Include only the forms belonging to the specified user
-            queryset = queryset.filter(user=profile.user)
+        queryset = queryset.filter(user=profile.user)
 
         if profile.require_auth:
             # The specified has user ticked "Require authentication to see
@@ -97,16 +90,6 @@ class XFormListApi(viewsets.ReadOnlyModelViewSet):
                 # raises a permission denied exception, forces authentication
                 self.permission_denied(self.request)
             else:
-                if formID is not None or pk:
-                    # If set formID or primary key ( for manifest )
-                    # we make filtering and check if this form is allowed for other users
-                    if pk:
-                        single = queryset.filter(pk=pk)
-                    else:
-                        single = queryset.filter(id_string=formID)
-                    if single:
-                        if single[0].allow_auth_submit == True:
-                            return single
                 # Someone has logged in, but they are not necessarily allowed
                 # to access the forms belonging to the specified user. Filter
                 # again to consider object-level permissions
@@ -117,7 +100,6 @@ class XFormListApi(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         self.object_list = self.filter_queryset(self.get_queryset())
-
         serializer = self.get_serializer(self.object_list, many=True)
 
         return Response(serializer.data, headers=self.get_openrosa_headers())

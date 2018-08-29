@@ -6,7 +6,7 @@ from onadata.apps.logger.models import XForm, Instance
 class FormAdmin(admin.ModelAdmin):
 
     exclude = ('user',)
-    list_display = ('id_string', 'downloadable', 'shared')
+    list_display = ('id_string', 'description', 'user', 'allow_auth_submit', 'downloadable', 'shared')
 
     # A user should only see forms that belong to him.
     def get_queryset(self, request):
