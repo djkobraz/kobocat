@@ -380,6 +380,15 @@ def set_xform_owner_data(data, xform, request, username, id_string):
         if 'validate_xform' in perm[1]:
             has_perm.append(_(u"Can Validate"))
         users_with_perms.append((perm[0], u" | ".join(has_perm)))
+
+    # Don't show auto submited users is set "allow_auth_submit" option
+    if xform.allow_auth_submit:
+        permited_user = users_with_perms
+        users_with_perms = []
+        for user in permited_user:
+            if user[1] != "Can submit to":
+                users_with_perms.append(user)
+
     data['users_with_perms'] = users_with_perms
     data['permission_form'] = PermissionForm(username)
 
@@ -460,7 +469,6 @@ def show_form_settings(request, username=None, id_string=None, uuid=None):
 
     if xform.allows_sms:
         data['sms_support_doc'] = get_autodoc_for(xform)
-
     return render(request, "show_form_settings.html", data)
 
 
